@@ -120,10 +120,9 @@ async function scrapeEventResults(page: Page): Promise<CompetitionResult[]> {
     let hasNextPage = true;
     
     while (hasNextPage) {
-        // Wait for the table to load
         await page.waitForSelector('table tbody tr', { timeout: 30000 });
         
-        // Scrape current page
+        // Update the cell mapping to correctly get snatch and C&J attempts
         const pageResults = await page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll('table tbody tr'));
             return rows.map(row => {
@@ -138,15 +137,16 @@ async function scrapeEventResults(page: Page): Promise<CompetitionResult[]> {
                 return {
                     lifter: getText(cells[3]),
                     bodyWeight: getNumber(cells[4]),
-                    snatch1: getNumber(cells[8]),
-                    snatch2: getNumber(cells[9]),
-                    snatch3: getNumber(cells[10]),
-                    snatch: getNumber(cells[11]),
-                    cj1: getNumber(cells[13]),
-                    cj2: getNumber(cells[14]),
-                    cj3: getNumber(cells[15]),
-                    cj: getNumber(cells[12]),
-                    total: getNumber(cells[13])
+                    // Fix the attempt mappings
+                    snatch1: getNumber(cells[5]),  // Changed from 8
+                    snatch2: getNumber(cells[6]),  // Changed from 9
+                    snatch3: getNumber(cells[7]),  // Changed from 10
+                    snatch: getNumber(cells[11]),  // Best snatch stays the same
+                    cj1: getNumber(cells[8]),      // Changed from 13
+                    cj2: getNumber(cells[9]),      // Changed from 14
+                    cj3: getNumber(cells[10]),     // Changed from 15
+                    cj: getNumber(cells[12]),      // Best C&J stays the same
+                    total: getNumber(cells[13])    // Total stays the same
                 };
             });
         });
